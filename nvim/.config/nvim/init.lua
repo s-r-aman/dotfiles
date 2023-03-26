@@ -1,0 +1,8 @@
+require("sraman.plugins-setup")
+require("sraman.core.options")
+require("sraman.core.keymaps")
+require("sraman.core.colorscheme")
+require("sraman.plugins.comment")
+require("sraman.plugins.nvim-tree")
+require("sraman.plugins.lualine")
+require("sraman.plugins.telescope")
