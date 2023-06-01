@@ -26,3 +26,7 @@ brew install --cask alacritty
 
 # bitwarden
 brew install --cask bitwarden
+
+# starship
+brew install starship
+
