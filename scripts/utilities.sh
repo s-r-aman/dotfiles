@@ -21,9 +21,17 @@ brew install --cask karabiner-elements
 # install mas
 brew install --cask karabiner-elements
 
-# hidden bar (to hid macos menu bar onw ill)
+# yabai, skhd
+brew install yabai skhd
+
+# hidden bar (to hid macos menu bar onill)
 mas install 1452453066
 # dropover
 mas insall 1355679052
 # pastepal
 mas install 1503446680
+# openin
+mas install 1547147101
+# 
+
+
