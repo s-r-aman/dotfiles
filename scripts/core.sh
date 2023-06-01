@@ -4,7 +4,7 @@
 # Arc 
 # Firefox
 
-brew install --cask google-chrome brave arc firefox
+brew install --cask google-chrome brave-browser arc firefox
 
 # intall things
 # Not installing as of now.
@@ -24,3 +24,5 @@ brew install --cask discord
 # alacritty
 brew install --cask alacritty
 
+# bitwarden
+brew install --cask bitwarden
