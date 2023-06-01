@@ -9,4 +9,4 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 
 
 # install oh my zsh
- brew install startship
+ brew install starship
