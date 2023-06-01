@@ -22,7 +22,10 @@ brew install --cask karabiner-elements
 brew install --cask karabiner-elements
 
 # yabai, skhd
-brew install yabai skhd
+brew install koekeishiya/formulae/yabai   koekeishiya/formulae/skhd
+
+# stow
+brew install stow
 
 # hidden bar (to hid macos menu bar onill)
 mas install 1452453066
@@ -32,6 +35,5 @@ mas insall 1355679052
 mas install 1503446680
 # openin
 mas install 1547147101
-# 
 
 
