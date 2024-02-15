@@ -103,6 +103,37 @@
                         "manipulators": [
                             {
                                 "from": {
+                                    "key_code": "caps_lock",
+                                    "modifiers": {
+                                        "optional": [
+                                            "any"
+                                        ]
+                                    }
+                                },
+                                "to": [
+                                    {
+                                        "key_code": "left_shift",
+                                        "modifiers": [
+                                            "left_command",
+                                            "left_option",
+                                            "left_control"
+                                        ]
+                                    }
+                                ],
+                                "to_if_alone": [
+                                    {
+                                        "key_code": "escape"
+                                    }
+                                ],
+                                "type": "basic"
+                            }
+                        ]
+                    },
+                    {
+                        "description": "Change caps_lock to hyper key, and post escape if pressed alone.",
+                        "manipulators": [
+                            {
+                                "from": {
                                     "key_code": "spacebar",
                                     "modifiers": {
                                         "optional": [
@@ -509,16 +540,6 @@
                     "to": [
                         {
                             "apple_vendor_top_case_key_code": "keyboard_fn"
-                        }
-                    ]
-                },
-                {
-                    "from": {
-                        "key_code": "caps_lock"
-                    },
-                    "to": [
-                        {
-                            "key_code": "escape"
                         }
                     ]
                 }
