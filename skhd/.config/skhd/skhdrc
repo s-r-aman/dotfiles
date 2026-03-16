@@ -8,8 +8,8 @@ alt - h : yabai -m window --focus west
 alt - l : yabai -m window --focus east
 
 # Changing dispaly focus
-alt - s : yabai -m display --focus west
-alt - g : yabai -m display --focus east
+alt - s : yabai -m display --focus north
+alt - g : yabai -m display --focus south
 
 # -- Modifying the Layout --
 
@@ -48,8 +48,8 @@ ctrl + alt - h : yabai -m window --warp west
 ctrl + alt - l : yabai -m window --warp east
 
 # move window to display left and right
-shift + alt - s : yabai -m window --display west; yabai -m display --focus west;
-shift + alt - g : yabai -m window --display east; yabai -m display --focus east;
+shift + alt - s : yabai -m window --display north; yabai -m display --focus west;
+shift + alt - g : yabai -m window --display south; yabai -m display --focus east;
 
 
 # move window to prev and next space
@@ -64,6 +64,9 @@ shift + alt - 4 : yabai -m window --space 4;
 shift + alt - 5 : yabai -m window --space 5;
 shift + alt - 6 : yabai -m window --space 6;
 shift + alt - 7 : yabai -m window --space 7;
+shift + alt - 8 : yabai -m window --space 8;
+shift + alt - 9 : yabai -m window --space 9;
+shift + alt - 0 : yabai -m window --space 10;
 
 # -- Starting/Stopping/Restarting Yabai --
 

@@ -1,13 +1,11 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Brew path addtion for bin
-export PATH=/opt/homebrew/bin:~/nvim-osx64/bin/nvim:/usr/local/bin/webstorm:$PATH
+export PATH=/opt/homebrew/bin:~/nvim-osx64/bin/nvim:/usr/local/bin/webstorm:/Users/vidyoai/Library/Python/3.9/bin:$PATH
 
 # Path to your oh-my-zsh installation.
-export ZSH="/Users/sraman/.oh-my-zsh"
+export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
@@ -103,33 +101,28 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias reload="source ~/.zshrc"
 alias editsh="nvim ~/.zshrc"
-alias lsa="exa -a"
-alias ls="exa"
-alias lg="l | grep $1"
+alias lsa="eza -a --icons"
+alias lla="eza -la --icons"
+alias ll="eza -l --icons"
 alias brew="/opt/homebrew/bin/brew"
 alias gc="git clone"
 alias bu="brew uninstall"
 alias bi="brew install"
-alias st="split_tab"
-alias vst="vsplit_tab"
-alias nps="npm start"
 alias npi="npm install"
-alias npd="npm run dev"
-alias npdev="npm run develop"
-alias npdevt="npm run development"
 alias npb="npm run build"
 alias yolo="rm -rf node_modules; npm install"
-alias tscw="npx tsc -w"
-alias kubric="~/projects/kubric/"
-alias mmagic="~/projects/kubric/baniyapp"
 alias gs="git switch"
 alias gsc="git switch -c"
-alias tsc="swc"
 alias master="git switch master && git pull origin master"
 alias staging="git switch staging && git pull origin staging"
 alias stg="git switch staging && git pull origin staging"
 alias renx="brew services restart nginx"
-alias work="itermocil mmagic"
+alias ghprlink="gh pr view --json url -q .url | tee >(pbcopy) && echo 'PR link copied to clipboard'"
+alias ghprcreate="gh pr create --body '' --title"
+alias myprs="gh pr list --author @me"
+alias myprco="gh pr list --author @me | fzf | awk '{print \$1}' | xargs gh pr checkout"
+alias ghrr="gh pr list --search 'review-requested:@me' | fzf --preview 'gh pr view {1}' --preview-window=right:50%:wrap | awk '{print \$1}' | xargs gh pr checkout"
+alias ghrrv="pr_num=\$(gh pr list --search 'review-requested:@me' | fzf --preview 'gh pr view {1}' --preview-window=right:50%:wrap | awk '{print \$1}') && gh pr checkout \$pr_num && claude \"open the project and review this pr: \$pr_num\""
 
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
@@ -138,8 +131,9 @@ eval "$(starship init zsh)"
 
 export EDITOR='nvim'
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
-
 # Set the global python version
 eval "$(pyenv init --path)"
+
+# Init zoxide
+eval "$(zoxide init zsh)"
+export PATH="$HOME/.local/bin:$PATH"

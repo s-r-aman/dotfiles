@@ -18,8 +18,11 @@ brew install --cask raycast
 # karabiner elements
 brew install --cask karabiner-elements
 
-# install mas
-brew install --cask karabiner-elements
+# mas
+brew install mas
+
+# logitech-options 
+brew install --cask logitech-options
 
 # yabai, skhd
 brew install koekeishiya/formulae/yabai   koekeishiya/formulae/skhd
