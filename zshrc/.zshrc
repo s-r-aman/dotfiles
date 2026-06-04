@@ -124,6 +124,15 @@ alias myprco="gh pr list --author @me | fzf | awk '{print \$1}' | xargs gh pr ch
 alias ghrr="gh pr list --search 'review-requested:@me' | fzf --preview 'gh pr view {1}' --preview-window=right:50%:wrap | awk '{print \$1}' | xargs gh pr checkout"
 alias ghrrv="pr_num=\$(gh pr list --search 'review-requested:@me' | fzf --preview 'gh pr view {1}' --preview-window=right:50%:wrap | awk '{print \$1}') && gh pr checkout \$pr_num && claude \"open the project and review this pr: \$pr_num\""
 
+# Stage files in a Dropover shelf, ready to drag. No args = everything in cwd.
+drop() {
+  if (( $# == 0 )); then
+    open -a Dropover ./*
+  else
+    open -a Dropover "$@"
+  fi
+}
+
 export NVM_DIR="$HOME/.nvm"
   [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && . "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
   [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && . "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
