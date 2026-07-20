@@ -7,7 +7,10 @@
 brew "ffmpeg"
 brew "sox"
 brew "yt-dlp"
-brew "youtube-dl"    # kept alongside yt-dlp; some old scripts still call it
+# youtube-dl was removed from homebrew-core (last release 2021.12.17) and no
+# longer resolves on a clean machine — it only appeared to work on the source
+# Mac because an old copy was still installed there. yt-dlp is the maintained
+# fork and a drop-in replacement.
 brew "spotify_player"
 
 # --- images / fonts ------------------------------------------------------

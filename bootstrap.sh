@@ -146,25 +146,81 @@ phase "Phase 3/7  Packages"
 # reported at the end, and the exit code reflects them.
 FAILED_TIERS=()
 
+FAILED_PACKAGES=()
+
+# Install a Brewfile one entry at a time.
+#
+# `brew bundle` fetches a tier as a single batch and aborts the whole batch if
+# ANY entry fails to resolve. One removed formula or untrusted cask therefore
+# costs every other package in that tier — 22 apps lost to one dead cask. This
+# fallback salvages the rest and names exactly what is broken.
+install_individually() {
+  local file="$1" tier="$2"
+  local name id rc=0
+
+  while IFS= read -r name; do
+    [[ -n "$name" ]] || continue
+    brew install --formula "$name" >/dev/null 2>&1 \
+      && info "  ok   formula $name" \
+      || { warn "  FAIL formula $name"; FAILED_PACKAGES+=("$tier:$name"); rc=1; }
+  done < <(grep '^brew "' "$file" | sed 's/^brew "\([^"]*\)".*/\1/')
+
+  while IFS= read -r name; do
+    [[ -n "$name" ]] || continue
+    brew install --cask "$name" >/dev/null 2>&1 \
+      && info "  ok   cask $name" \
+      || { warn "  FAIL cask $name"; FAILED_PACKAGES+=("$tier:$name"); rc=1; }
+  done < <(grep '^cask "' "$file" | sed 's/^cask "\([^"]*\)".*/\1/')
+
+  while IFS= read -r id; do
+    [[ -n "$id" ]] || continue
+    mas install "$id" >/dev/null 2>&1 \
+      && info "  ok   mas $id" \
+      || { warn "  FAIL mas $id"; FAILED_PACKAGES+=("$tier:mas-$id"); rc=1; }
+  done < <(grep '^mas ' "$file" | sed 's/.*id: *\([0-9]*\).*/\1/')
+
+  return $rc
+}
+
 run_bundle() {
   # Split across two `local` statements deliberately: in bash 3.2 a single
   # `local a=$1 b=$a` declares both names before assigning, so `$a` is unset
   # when `b` expands — fatal under `set -u`.
   local tier="$1"
   local file="$BREW_DIR/Brewfile.$tier"
+
   if brew bundle --file="$file"; then
     return 0
-  else
-    FAILED_TIERS+=("$tier")
-    warn "'$tier' had failures — continuing anyway."
-    warn "  retry with: brew bundle --file=brew/Brewfile.$tier"
-    return 1
   fi
+
+  warn "'$tier' failed as a batch — retrying entry by entry to salvage the rest."
+  if install_individually "$file" "$tier"; then
+    ok "'$tier' fully installed on the second pass"
+    return 0
+  fi
+
+  FAILED_TIERS+=("$tier")
+  return 1
 }
 
 # Taps first: the casks in Brewfile.apps resolve only from third-party taps.
 info "Tapping repositories..."
 run_bundle taps && ok "taps ready"
+
+# Recent Homebrew refuses to load casks from a third-party tap until that tap
+# is explicitly trusted (HOMEBREW_REQUIRE_TAP_TRUST), which aborts the entire
+# tier containing them. These are the taps declared in Brewfile.taps, each one
+# already an explicit choice in this repo, so trusting them here matches
+# intent — but it IS granting those taps permission to run their code.
+while IFS= read -r t; do
+  [[ -n "$t" ]] || continue
+  if brew trust --tap "$t" >/dev/null 2>&1; then
+    info "  trusted tap $t"
+  else
+    # Older Homebrew has no `brew trust`; nothing to do there.
+    info "  (tap trust not applicable for $t)"
+  fi
+done < <(grep '^tap "' "$BREW_DIR/Brewfile.taps" | sed 's/^tap "\([^"]*\)".*/\1/')
 
 info "Installing core tier (this is the slow part)..."
 run_bundle core && ok "core installed"
@@ -314,7 +370,7 @@ else
 fi
 
 # =========================================================================
-if [[ ${#FAILED_TIERS[@]} -gt 0 || ${#STOW_FAILED[@]} -gt 0 ]]; then
+if [[ ${#FAILED_TIERS[@]} -gt 0 || ${#STOW_FAILED[@]} -gt 0 || ${#FAILED_PACKAGES[@]} -gt 0 ]]; then
   phase "Done — with failures"
 else
   phase "Done"
@@ -332,12 +388,19 @@ cat <<EOF
     Verify with: $DOTFILES/scripts/healthcheck.sh
 EOF
 
-if [[ ${#FAILED_TIERS[@]} -gt 0 ]]; then
+if [[ ${#FAILED_PACKAGES[@]} -gt 0 ]]; then
+  printf '\n'
+  warn "these individual packages could not be installed:"
+  for p in "${FAILED_PACKAGES[@]}"; do
+    warn "    ${p%%:*} tier -> ${p#*:}"
+  done
+  warn "everything else in those tiers DID install."
+  warn "a package removed upstream should be deleted from its Brewfile;"
+  warn "an untrusted third-party cask needs: brew trust --tap <tap>"
+elif [[ ${#FAILED_TIERS[@]} -gt 0 ]]; then
   printf '\n'
   warn "these tiers had failures: ${FAILED_TIERS[*]}"
-  warn "everything else installed. Scroll up for the specific packages,"
-  warn "or re-run a single tier with:"
-  warn "  brew bundle --file=brew/Brewfile.<tier>"
+  warn "retry with: brew bundle --file=brew/Brewfile.<tier>"
 fi
 
 if [[ ${#STOW_FAILED[@]} -gt 0 ]]; then
@@ -347,6 +410,6 @@ if [[ ${#STOW_FAILED[@]} -gt 0 ]]; then
   warn "  stow --no --verbose --target=\"\$HOME\" --dir=\"$DOTFILES\" <package>"
 fi
 
-if [[ ${#FAILED_TIERS[@]} -gt 0 || ${#STOW_FAILED[@]} -gt 0 ]]; then
+if [[ ${#FAILED_TIERS[@]} -gt 0 || ${#STOW_FAILED[@]} -gt 0 || ${#FAILED_PACKAGES[@]} -gt 0 ]]; then
   exit 1
 fi
