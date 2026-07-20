@@ -187,18 +187,77 @@ for tier in ${SELECTED_TIERS[@]+"${SELECTED_TIERS[@]}"}; do
 done
 
 # =========================================================================
-# Phase 4 — zsh + oh-my-zsh
+# Phase 4 — stow
 # =========================================================================
-phase "Phase 4/7  Shell"
+# MUST run before oh-my-zsh. The oh-my-zsh installer writes a template
+# ~/.zshrc unconditionally when no zshrc exists — its KEEP_ZSHRC=yes early
+# return sits *inside* `if [ -f .zshrc ] || [ -h .zshrc ]`, so on a clean
+# machine it falls straight through and creates one. Linking first means the
+# symlink already satisfies that `-h` test, and oh-my-zsh leaves it alone.
+phase "Phase 4/7  Linking dotfiles"
+
+command -v stow >/dev/null 2>&1 || die "stow missing — Brewfile.core should have installed it"
+
+BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
+STOW_FAILED=()
+backed_up_any=false
+
+for pkg in "${STOW_PACKAGES[@]}"; do
+  [[ -d "$DOTFILES/$pkg" ]] || { warn "package '$pkg' not in repo — skipping"; continue; }
+
+  # Move aside anything real sitting where a link belongs.
+  #
+  # This walks the package to compute its targets rather than parsing stow's
+  # conflict output. Those messages come in several shapes that vary between
+  # releases ("existing target is not owned by stow", "cannot stow X over
+  # existing target Y since neither a link nor a directory"), and matching the
+  # wrong one silently backs up nothing and then fails to link.
+  #
+  # A pre-existing SYMLINK is left alone: stow --restow owns and refreshes it.
+  # Only real files and directories are moved.
+  while IFS= read -r rel; do
+    [[ -n "$rel" ]] || continue
+    target="$HOME/$rel"
+    if [[ -e "$target" && ! -L "$target" ]]; then
+      mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+      mv "$target" "$BACKUP_DIR/$rel"
+      info "backed up ~/$rel"
+      backed_up_any=true
+    fi
+  done < <(cd "$DOTFILES/$pkg" && find . -type f -print | sed 's|^\./||')
+
+  if stow --target="$HOME" --dir="$DOTFILES" --restow "$pkg" 2>&1; then
+    ok "linked $pkg"
+  else
+    STOW_FAILED+=("$pkg")
+    warn "could not link '$pkg' — continuing."
+  fi
+done
+
+$backed_up_any && warn "pre-existing files were moved to $BACKUP_DIR"
+
+# =========================================================================
+# Phase 5 — zsh + oh-my-zsh
+# =========================================================================
+phase "Phase 5/7  Shell"
 
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   info "Installing oh-my-zsh..."
-  # --unattended: do not launch a subshell or touch .zshrc, which stow owns.
+  # KEEP_ZSHRC=yes protects the symlink phase 4 just created.
+  # RUNZSH=no stops the installer dropping us into a subshell.
   RUNZSH=no KEEP_ZSHRC=yes sh -c \
     "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
   ok "oh-my-zsh installed"
 else
   ok "oh-my-zsh already present"
+fi
+
+# Guard against a future installer change clobbering the link anyway.
+if [[ -e "$HOME/.zshrc" && ! -L "$HOME/.zshrc" ]]; then
+  warn "~/.zshrc is a real file, not the stow link — oh-my-zsh replaced it."
+  mkdir -p "$BACKUP_DIR"
+  mv "$HOME/.zshrc" "$BACKUP_DIR/.zshrc.oh-my-zsh-template"
+  stow --target="$HOME" --dir="$DOTFILES" --restow zshrc && ok "re-linked zshrc"
 fi
 
 # The custom plugins .zshrc loads. These are NOT bundled with oh-my-zsh and
@@ -233,45 +292,6 @@ if [[ -x "$BREW_ZSH" ]]; then
 fi
 
 # =========================================================================
-# Phase 5 — stow
-# =========================================================================
-phase "Phase 5/7  Linking dotfiles"
-
-command -v stow >/dev/null 2>&1 || die "stow missing — Brewfile.core should have installed it"
-
-BACKUP_DIR="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
-conflicts_found=false
-
-for pkg in "${STOW_PACKAGES[@]}"; do
-  [[ -d "$DOTFILES/$pkg" ]] || { warn "package '$pkg' not in repo — skipping"; continue; }
-
-  # Dry run first. A conflict means a REAL file sits where a symlink should
-  # go; clobbering it silently would be the worst thing this script could do.
-  if ! conflict_output=$(stow --no --target="$HOME" --dir="$DOTFILES" --restow "$pkg" 2>&1); then
-    conflicts_found=true
-    warn "conflicts in '$pkg':"
-    printf '%s\n' "$conflict_output" | sed 's/^/        /'
-
-    mkdir -p "$BACKUP_DIR"
-    # Move each existing target aside, preserving its path under the backup.
-    printf '%s\n' "$conflict_output" \
-      | grep -oE 'existing target is [^:]*: .*' \
-      | sed 's/.*: //' \
-      | while read -r rel; do
-          [[ -n "$rel" && -e "$HOME/$rel" ]] || continue
-          mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
-          mv "$HOME/$rel" "$BACKUP_DIR/$rel"
-          info "backed up ~/$rel"
-        done
-  fi
-
-  stow --target="$HOME" --dir="$DOTFILES" --restow "$pkg"
-  ok "linked $pkg"
-done
-
-$conflicts_found && warn "pre-existing files were moved to $BACKUP_DIR"
-
-# =========================================================================
 # Phase 6 — macOS defaults
 # =========================================================================
 phase "Phase 6/7  macOS defaults"
@@ -294,7 +314,7 @@ else
 fi
 
 # =========================================================================
-if [[ ${#FAILED_TIERS[@]} -gt 0 ]]; then
+if [[ ${#FAILED_TIERS[@]} -gt 0 || ${#STOW_FAILED[@]} -gt 0 ]]; then
   phase "Done — with failures"
 else
   phase "Done"
@@ -318,5 +338,15 @@ if [[ ${#FAILED_TIERS[@]} -gt 0 ]]; then
   warn "everything else installed. Scroll up for the specific packages,"
   warn "or re-run a single tier with:"
   warn "  brew bundle --file=brew/Brewfile.<tier>"
+fi
+
+if [[ ${#STOW_FAILED[@]} -gt 0 ]]; then
+  printf '\n'
+  warn "these packages could not be linked: ${STOW_FAILED[*]}"
+  warn "your configs for them are NOT active. Inspect with:"
+  warn "  stow --no --verbose --target=\"\$HOME\" --dir=\"$DOTFILES\" <package>"
+fi
+
+if [[ ${#FAILED_TIERS[@]} -gt 0 || ${#STOW_FAILED[@]} -gt 0 ]]; then
   exit 1
 fi

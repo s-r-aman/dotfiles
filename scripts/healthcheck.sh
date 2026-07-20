@@ -52,16 +52,32 @@ for p in zsh-autosuggestions zsh-syntax-highlighting; do
 done
 
 printf '\n%sStow links%s\n' "$BOLD" "$RESET"
+# Checks that a path RESOLVES into the dotfiles repo, rather than demanding a
+# symlink at that exact path.
+#
+# stow folds trees: if ~/.claude does not already exist it links ~/.claude
+# itself, so ~/.claude/commands is then a real directory reached *through* a
+# link and `-L` on it is false. Both layouts are correct, and which one you
+# get depends on what already existed. Testing `-L` at a fixed path reports a
+# spurious failure on exactly the fresh machine this script is meant to check.
 check_link() {
-  local target="$1"
-  if [[ -L "$target" ]]; then
-    local dest; dest="$(readlink "$target")"
-    if [[ "$dest" == *dotfiles* ]]; then pass "$(basename "$target") -> $dest"
-    else fail "$target is a symlink but not into dotfiles ($dest)"; fi
-  elif [[ -e "$target" ]]; then
-    fail "$target exists but is a real file, not a stow link"
-  else
+  local target="$1" real
+  if [[ ! -e "$target" ]]; then
     fail "$target missing"
+    return
+  fi
+  real="$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)/$(basename "$target")"
+  if [[ "$real" == "$DOTFILES"/* ]] || [[ "$(readlink "$target" 2>/dev/null)" == *dotfiles* ]]; then
+    pass "$(basename "$target") -> dotfiles"
+  else
+    # Resolve one more level for the folded case: the parent may be the link.
+    local parent_real
+    parent_real="$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)"
+    if [[ "$parent_real" == "$DOTFILES"/* ]]; then
+      pass "$(basename "$target") -> dotfiles (via folded parent)"
+    else
+      fail "$target does not resolve into $DOTFILES (got $parent_real)"
+    fi
   fi
 }
 check_link "$HOME/.zshrc"
