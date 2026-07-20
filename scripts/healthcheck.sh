@@ -140,7 +140,24 @@ if [[ -r "$HOME/.config/ghostty/config" ]]; then
     fi
   fi
 else
-  fail "~/.config/ghostty/config not readable"
+  # "not readable" alone conflates three very different faults. Say which.
+  gdir="${XDG_CONFIG_HOME:-$HOME/.config}/ghostty"
+  gcfg="$gdir/config"
+  if [[ -L "$gdir" && ! -e "$gdir" ]]; then
+    fail "~/.config/ghostty is a DANGLING symlink -> $(readlink "$gdir")"
+    fail "  the repo is not at that path on this machine"
+  elif [[ ! -e "$gdir" ]]; then
+    fail "~/.config/ghostty does not exist — stow never linked the package"
+    fail "  fix: cd $DOTFILES && stow --target=\"\$HOME\" ghostty"
+  elif [[ ! -e "$gcfg" ]]; then
+    fail "~/.config/ghostty exists but contains no 'config' file"
+    fail "  it resolves to: $(cd "$gdir" 2>/dev/null && pwd -P)"
+    fail "  contents: $(ls -A "$gdir" 2>/dev/null | tr '\n' ' ' | sed 's/ $//' || echo '<empty>')"
+    fail "  repo has: $(ls -A "$DOTFILES/ghostty/.config/ghostty" 2>/dev/null | tr '\n' ' ' || echo '<package missing>')"
+  else
+    fail "~/.config/ghostty/config exists but is not readable (permissions?)"
+    fail "  $(ls -la "$gcfg" 2>&1 | head -1)"
+  fi
 fi
 
 printf '\n%sGit identity%s\n' "$BOLD" "$RESET"
