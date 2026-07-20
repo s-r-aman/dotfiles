@@ -105,6 +105,24 @@ Not scriptable:
 - Bitwarden unlock, then the apps whose licences it holds
 - Raycast settings import (Raycast → Settings → Advanced → Import)
 
+## Ghostty config precedence
+
+Ghostty reads **two** config files on macOS:
+
+1. `~/.config/ghostty/config` — the stowed one
+2. `~/Library/Application Support/com.mitchellh.ghostty/config` — **wins**
+
+Ghostty writes the second whenever settings are changed in its GUI. When it
+exists with real content it silently shadows the stowed config: the symlink is
+correct, `cat` shows the right file, and none of it takes effect.
+
+```sh
+ghostty +show-config          # what Ghostty ACTUALLY loaded — the only truth
+```
+
+`bootstrap.sh` moves a shadowing file into `~/.dotfiles-backup/`, and
+`healthcheck.sh` fails if one reappears.
+
 ## Fonts
 
 Ghostty uses **MonaspiceAr Nerd Font** (nerd-patched Monaspace Argon), installed

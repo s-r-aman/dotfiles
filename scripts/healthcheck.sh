@@ -87,6 +87,20 @@ for d in karabiner nvim ghostty alacritty; do check_link "$HOME/.config/$d"; don
 check_link "$HOME/.claude/commands"
 
 printf '\n%sGhostty%s\n' "$BOLD" "$RESET"
+
+# Ghostty reads the macOS-native Application Support config IN ADDITION to
+# ~/.config/ghostty/config, and it takes precedence. Ghostty rewrites it from
+# its GUI, so it can reappear at any time and silently shadow the stowed
+# config — everything looks correctly linked and simply has no effect.
+GHOSTTY_APPSUPPORT="$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+if [[ -f "$GHOSTTY_APPSUPPORT" ]] && grep -qE '[^[:space:]]' "$GHOSTTY_APPSUPPORT" 2>/dev/null; then
+  fail "a config in Application Support is OVERRIDING the stowed one:"
+  fail "  $GHOSTTY_APPSUPPORT"
+  fail "  move it aside, then restart Ghostty"
+else
+  pass "no shadowing config in Application Support"
+fi
+
 if [[ -r "$HOME/.config/ghostty/config" ]]; then
   pass "config readable"
   # The font-family declared in the stowed config, used for both checks below.

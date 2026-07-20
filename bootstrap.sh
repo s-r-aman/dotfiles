@@ -292,6 +292,25 @@ done
 
 $backed_up_any && warn "pre-existing files were moved to $BACKUP_DIR"
 
+# Ghostty reads BOTH ~/.config/ghostty/config and the macOS-native
+# ~/Library/Application Support/com.mitchellh.ghostty/config, and the latter
+# WINS. Ghostty writes it whenever settings are changed in its GUI, so a new
+# machine can end up with a file there that silently shadows everything stowed
+# — the config looks correctly linked and simply has no effect.
+#
+# Verified by planting `font-size = 99` there: `ghostty +show-config` reported
+# 99 and ignored the stowed 18.
+GHOSTTY_APPSUPPORT="$HOME/Library/Application Support/com.mitchellh.ghostty/config"
+if [[ -f "$GHOSTTY_APPSUPPORT" && ! -L "$GHOSTTY_APPSUPPORT" ]]; then
+  # A file of only whitespace shadows nothing; leave it alone.
+  if [[ -s "$GHOSTTY_APPSUPPORT" ]] && grep -qE '[^[:space:]]' "$GHOSTTY_APPSUPPORT"; then
+    mkdir -p "$BACKUP_DIR"
+    mv "$GHOSTTY_APPSUPPORT" "$BACKUP_DIR/ghostty-application-support-config"
+    warn "moved a shadowing Ghostty config out of Application Support"
+    warn "  (it overrides ~/.config/ghostty/config; saved in $BACKUP_DIR)"
+  fi
+fi
+
 # =========================================================================
 # Phase 5 — zsh + oh-my-zsh
 # =========================================================================
