@@ -1,0 +1,64 @@
+# DEV — languages, runtimes, databases, editors, cloud.
+# ./bootstrap.sh --with dev
+#
+# 19 formulae + 13 casks. (18 mirrored from the source machine, plus git-lfs.)
+
+# --- language runtimes ---------------------------------------------------
+brew "nvm"           # .zshrc sources /opt/homebrew/opt/nvm/nvm.sh
+brew "pyenv"         # .zshrc runs `pyenv init --path`
+brew "uv"
+
+# --- services ------------------------------------------------------------
+brew "redis"         # NOT auto-started; `brew services start redis` when needed
+brew "docker"
+
+# --- dev tooling ---------------------------------------------------------
+# NOT installed on the machine this repo was generated from, but .gitconfig
+# configures filter.lfs.* hooks. Without this binary any LFS repo fails with
+# "git-lfs: command not found". Added to make the existing config valid.
+brew "git-lfs"
+brew "act"           # run GitHub Actions locally
+brew "killport"
+brew "bitwarden-cli"
+brew "rename"
+brew "duti"          # default-application bindings
+brew "herdr"
+brew "jupyterlab"
+
+# --- viewers / formatters ------------------------------------------------
+brew "jless"         # JSON
+brew "fx"            # JSON
+brew "glow"          # markdown
+brew "mdcat"         # markdown
+
+# --- typesetting ---------------------------------------------------------
+brew "typst"
+brew "tectonic"
+
+# --- editors -------------------------------------------------------------
+cask "visual-studio-code"
+cask "cursor"
+cask "zed"
+cask "sublime-text"
+
+# --- containers ----------------------------------------------------------
+# Canonical name. `docker` and `docker-desktop` are the SAME cask — brew
+# resolves `docker` -> `docker-desktop`. Listing both installs nothing extra.
+cask "docker-desktop"
+
+# --- api / network -------------------------------------------------------
+cask "postman"
+cask "ngrok"
+cask "wireshark-app"
+
+# --- databases -----------------------------------------------------------
+cask "beekeeper-studio"
+cask "mongodb-compass"
+cask "pgadmin4"
+
+# --- cloud ---------------------------------------------------------------
+# `google-cloud-sdk` is an alias of this. One entry, not two.
+cask "gcloud-cli"
+
+# --- misc ----------------------------------------------------------------
+cask "applite"       # GUI over homebrew casks

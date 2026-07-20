@@ -1,0 +1,53 @@
+# CORE — everything needed for a usable machine.
+# Installed by default: ./bootstrap.sh with no arguments.
+#
+# 19 formulae + 11 casks + 5 fonts.
+
+# --- shell ---------------------------------------------------------------
+brew "zsh"
+brew "stow"          # applies every dotfiles package; without it nothing links
+brew "starship"      # .zshrc runs `starship init zsh`
+brew "zoxide"        # .zshrc runs `zoxide init zsh`
+brew "thefuck"       # oh-my-zsh plugin `thefuck` loads this
+brew "fzf"
+
+# --- core CLI ------------------------------------------------------------
+brew "eza"           # NOT exa. Aliases ll/lla/lsa in .zshrc call eza.
+brew "bat"
+brew "fd"
+brew "jq"
+brew "trash"
+brew "btop"
+brew "yazi"
+
+# --- editor / multiplexer ------------------------------------------------
+brew "neovim"        # $EDITOR
+brew "tmux"
+
+# --- git / github --------------------------------------------------------
+brew "gh"            # required by the ghpr*/myprs/ghrr aliases
+brew "lazygit"
+
+# --- misc ----------------------------------------------------------------
+brew "mas"           # drives Brewfile.mas
+brew "pinentry-mac"  # GPG pinentry
+
+# --- desktop essentials --------------------------------------------------
+cask "ghostty"             # primary terminal
+cask "karabiner-elements"
+cask "raycast"
+cask "alt-tab"
+cask "shottr"
+cask "itsycal"
+cask "betterdisplay"
+cask "monitorcontrol"
+cask "dockdoor"
+cask "openin"              # cask only; the MAS build is a duplicate
+cask "bitwarden"
+
+# --- fonts ---------------------------------------------------------------
+cask "font-hack-nerd-font"          # terminal font
+cask "font-symbols-only-nerd-font"
+cask "font-ibm-plex-mono"
+cask "font-karla"
+cask "font-fontawesome"

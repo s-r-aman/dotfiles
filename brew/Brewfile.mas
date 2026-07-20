@@ -1,0 +1,38 @@
+# MAC APP STORE — requires `mas` (in Brewfile.core) and an active App Store
+# login. `mas install` fails on a machine that is not signed in, so bootstrap
+# checks first and skips this tier with a warning rather than erroring out.
+#
+# 22 apps. All 23 installed, less `openin` (1547147101) which duplicates the
+# cask in Brewfile.core.
+
+# --- notes / writing -----------------------------------------------------
+mas "Bear",        id: 1091189122
+mas "Drafts",      id: 1435957248
+mas "Day One",     id: 1055511498
+mas "Todoist",     id: 585829637
+
+# --- reference / reading -------------------------------------------------
+mas "Linkeeper",   id: 6449708232
+mas "Flyleaf",     id: 6475200381
+mas "ExcalidrawZ", id: 6636493997
+
+# --- utilities -----------------------------------------------------------
+mas "Dropover",    id: 1355679052   # required by the drop() function in .zshrc
+mas "PastePal",    id: 1503446680
+mas "Pure Paste",  id: 1611378436
+mas "Barbee",      id: 1548711022
+mas "NotchBox",    id: 6737410946
+mas "Folder Hub",  id: 6473019059
+mas "Pixea",       id: 1507782672
+mas "MacDroid",    id: 1476545828
+
+# --- finance / travel ----------------------------------------------------
+mas "MoneyThings", id: 1549694221
+mas "Flighty",     id: 1358823008
+
+# --- apple iwork / dev ---------------------------------------------------
+mas "Pages",       id: 409201541
+mas "Numbers",     id: 409203825
+mas "Keynote",     id: 409183694
+mas "GarageBand",  id: 682658836
+mas "Xcode",       id: 497799835

@@ -1,0 +1,27 @@
+# AI — assistants, coding agents, meeting tools.
+# ./bootstrap.sh --with ai
+#
+# 11 casks.
+#
+# This tier churns fastest: these casks get renamed, superseded and removed
+# more often than anything else here. It is isolated so that one dead entry
+# fails this tier alone instead of blocking the whole bootstrap.
+
+# --- assistants ----------------------------------------------------------
+cask "claude"
+cask "chatgpt"
+cask "chatgpt-atlas"
+
+# --- coding agents / terminals -------------------------------------------
+cask "codex"
+cask "cmux"
+cask "conductor"
+cask "supacode"
+
+# --- meetings ------------------------------------------------------------
+cask "granola"
+cask "fathom"
+
+# --- voice / misc --------------------------------------------------------
+cask "fluidvoice"
+cask "finetune"

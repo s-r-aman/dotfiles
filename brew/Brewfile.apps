@@ -1,0 +1,38 @@
+# APPS — browsers, communication, productivity, hardware.
+# ./bootstrap.sh --with apps
+#
+# 22 casks.
+
+# --- browsers ------------------------------------------------------------
+cask "arc"
+cask "brave-browser"
+cask "firefox"
+cask "google-chrome"
+cask "zen"
+cask "thebrowsercompany-dia"
+
+# --- communication -------------------------------------------------------
+cask "slack"
+cask "telegram"
+cask "whatsapp"
+cask "zoom"
+cask "loom"
+
+# --- productivity --------------------------------------------------------
+cask "notion"
+cask "obsidian"
+cask "raindropio"
+cask "anki"
+cask "antinote"
+cask "flux-markdown"
+cask "muesli"              # needs tap muesli-hq/muesli
+
+# --- hardware / network --------------------------------------------------
+# Replaces `logitech-options` (10.26.49), which is superseded upstream.
+cask "logi-options+"
+cask "thock"               # needs tap kamillobinski/thock
+cask "surfshark"
+
+# --- terminal (secondary) ------------------------------------------------
+# Superseded by ghostty in daily use; config still stowed, so kept.
+cask "alacritty"

@@ -1,0 +1,39 @@
+# MEDIA — audio, video, images, documents.
+# ./bootstrap.sh --with media
+#
+# 11 formulae + 8 casks.
+
+# --- video / audio -------------------------------------------------------
+brew "ffmpeg"
+brew "sox"
+brew "yt-dlp"
+brew "youtube-dl"    # kept alongside yt-dlp; some old scripts still call it
+brew "spotify_player"
+
+# --- images / fonts ------------------------------------------------------
+brew "imagemagick"
+brew "fontforge"
+
+# --- documents -----------------------------------------------------------
+brew "poppler"       # pdftotext, pdfimages
+brew "ghostscript"
+brew "kepubify"      # epub -> kepub for Kobo
+
+# --- archives ------------------------------------------------------------
+brew "sevenzip"
+
+# --- players / editors ---------------------------------------------------
+cask "iina"
+cask "spotify"
+cask "audacity"
+cask "descript"
+
+# Canonical name. `handbrake` is an alias resolving to `handbrake-app`.
+cask "handbrake-app"
+
+# --- audio routing -------------------------------------------------------
+cask "eqmac"
+cask "soundsource"
+
+# --- torrents ------------------------------------------------------------
+cask "qbittorrent"

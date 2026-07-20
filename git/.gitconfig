@@ -1,0 +1,21 @@
+# Shared git configuration. This file is committed and stowed to ~/.gitconfig.
+#
+# IDENTITY IS DELIBERATELY NOT HERE. Because ~/.gitconfig is a symlink into
+# this repo, `git config --global user.email ...` would write your address
+# into version control. Identity lives in ~/.gitconfig.local, which is not
+# tracked and is created by lib/identity.sh.
+
+[include]
+	path = ~/.gitconfig.local
+
+[push]
+	autoSetupRemote = true
+
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+
+[init]
+	defaultBranch = main

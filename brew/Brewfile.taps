@@ -1,0 +1,17 @@
+# Third-party taps. Bundled BEFORE every other tier — several casks below
+# resolve only from these, and `brew bundle` will hard-fail without them.
+
+tap "homebrew/services"
+
+# Nerd/other font casks. Deprecated upstream (fonts moved into homebrew/cask),
+# kept because the current machine still has it tapped and removing it is a
+# separate decision from this bootstrap.
+tap "homebrew/cask-fonts"
+
+tap "kamillobinski/thock"      # cask "thock"
+tap "muesli-hq/muesli"         # cask "muesli"
+tap "theboredteam/boring-notch"
+tap "oven-sh/bun"
+tap "asmvik/formulae"
+tap "bbc/audiowaveform"
+tap "xykong/tap"
