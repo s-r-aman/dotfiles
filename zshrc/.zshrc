@@ -146,3 +146,6 @@ eval "$(pyenv init --path)"
 # Init zoxide
 eval "$(zoxide init zsh)"
 export PATH="$HOME/.local/bin:$PATH"
+
+# opencode
+export PATH=/Users/vidyoai/.opencode/bin:$PATH

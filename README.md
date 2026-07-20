@@ -97,6 +97,13 @@ creates it.
 
 Not scriptable:
 
+- **MonoLisa Nerd Font.** `ghostty/.config/ghostty/config` sets
+  `font-family = MonoLisa Nerd Font`. MonoLisa is a commercial, licensed font —
+  it is not on Homebrew and is deliberately **not** committed here, since this
+  repo is public and redistributing it would breach the licence. Copy
+  `~/Library/Fonts/MonoLisaNerdFont-Regular.ttf` across from a machine that has
+  it. Without it Ghostty silently falls back to a system default, which looks
+  exactly like the config having failed to load. `healthcheck.sh` checks for it.
 - Accessibility permission for Karabiner-Elements and Raycast
   (System Settings → Privacy & Security → Accessibility)
 - App Store login, required before the `mas` tier installs anything

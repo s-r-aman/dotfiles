@@ -86,6 +86,49 @@ check_link "$HOME/.gitconfig"
 for d in karabiner nvim ghostty alacritty; do check_link "$HOME/.config/$d"; done
 check_link "$HOME/.claude/commands"
 
+printf '\n%sGhostty%s\n' "$BOLD" "$RESET"
+if [[ -r "$HOME/.config/ghostty/config" ]]; then
+  pass "config readable"
+  # The font-family declared in the stowed config, used for both checks below.
+  # NOTE: BSD sed has no \s — use [[:space:]] or the space is never stripped.
+  want_font="$(sed -n 's/^[[:space:]]*font-family[[:space:]]*=[[:space:]]*//p' \
+                 "$HOME/.config/ghostty/config" 2>/dev/null | head -1)"
+
+  if command -v ghostty >/dev/null 2>&1; then
+    # +show-config prints what Ghostty ACTUALLY loaded, which is the only
+    # reliable signal — a linked-but-unreadable config looks identical to a
+    # missing one from the outside.
+    #
+    # Capture to a variable rather than piping into grep -q. Under `pipefail`,
+    # grep -q exits on its first match, SIGPIPEs ghostty, and the pipeline then
+    # reports failure even though the match succeeded — a race that passes or
+    # fails depending on which process finishes first.
+    loaded="$(ghostty +show-config 2>/dev/null || true)"
+    if [[ -n "$want_font" && "$loaded" == *"font-family = $want_font"* ]]; then
+      pass "ghostty is loading this config"
+    elif [[ -z "$loaded" ]]; then
+      fail "ghostty +show-config returned nothing"
+    else
+      fail "ghostty is NOT loading the stowed config (check: ghostty +show-config)"
+    fi
+  fi
+
+  # A font named in the config must actually be installed, or Ghostty silently
+  # falls back to a system default and the terminal just looks wrong — which is
+  # indistinguishable from the config not loading at all.
+  if [[ -n "$want_font" ]]; then
+    if ls "$HOME/Library/Fonts" /Library/Fonts 2>/dev/null | grep -qi "${want_font// /}"; then
+      pass "font installed: $want_font"
+    else
+      fail "font NOT installed: '$want_font' — ghostty falls back to a default."
+      fail "  MonoLisa is a paid font, not available via brew. Copy the .ttf"
+      fail "  from your other Mac into ~/Library/Fonts/."
+    fi
+  fi
+else
+  fail "~/.config/ghostty/config not readable"
+fi
+
 printf '\n%sGit identity%s\n' "$BOLD" "$RESET"
 if git config user.email >/dev/null 2>&1; then
   pass "identity set: $(git config user.name) <$(git config user.email)>"
