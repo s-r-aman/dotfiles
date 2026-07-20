@@ -274,12 +274,27 @@ for pkg in "${STOW_PACKAGES[@]}"; do
   while IFS= read -r rel; do
     [[ -n "$rel" ]] || continue
     target="$HOME/$rel"
-    if [[ -e "$target" && ! -L "$target" ]]; then
-      mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
-      mv "$target" "$BACKUP_DIR/$rel"
-      info "backed up ~/$rel"
-      backed_up_any=true
+    [[ -e "$target" && ! -L "$target" ]] || continue
+
+    # CRITICAL: the target may BE the repo's own file, reached through a
+    # symlinked parent.
+    #
+    # stow folds trees — when ~/.config/ghostty does not exist it links the
+    # directory itself, so ~/.config/ghostty/config then resolves into the
+    # repo. That path is a regular file (only its PARENT is a symlink), so
+    # `-L` on it is false and the naive check above treats it as a foreign
+    # file to move aside. Moving it deletes the file from the repository.
+    #
+    # Resolve the parent and refuse to touch anything living inside DOTFILES.
+    real_parent="$(cd "$(dirname "$target")" 2>/dev/null && pwd -P)" || continue
+    if [[ "$real_parent" == "$DOTFILES" || "$real_parent" == "$DOTFILES"/* ]]; then
+      continue
     fi
+
+    mkdir -p "$BACKUP_DIR/$(dirname "$rel")"
+    mv "$target" "$BACKUP_DIR/$rel"
+    info "backed up ~/$rel"
+    backed_up_any=true
   done < <(cd "$DOTFILES/$pkg" && find . -type f -print | sed 's|^\./||')
 
   if stow --target="$HOME" --dir="$DOTFILES" --restow "$pkg" 2>&1; then
