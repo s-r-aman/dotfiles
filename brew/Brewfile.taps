@@ -1,17 +1,21 @@
-# Third-party taps. Bundled BEFORE every other tier — several casks below
-# resolve only from these, and `brew bundle` will hard-fail without them.
+# Third-party taps. Bundled BEFORE every other tier — the casks listed here
+# resolve only from these.
+#
+# ONLY taps that something in these Brewfiles actually needs. The source
+# machine had nine tapped; six were either deprecated or left over from
+# software no longer installed, and tapping a deprecated repo is a hard
+# error that aborts `brew bundle`.
+#
+# Deliberately NOT tapped:
+#   homebrew/services         deprecated and empty; `brew services` is built
+#                             into brew itself and needs no tap
+#   homebrew/cask-fonts       deprecated and empty; every font-* cask now
+#                             lives in homebrew/cask
+#   asmvik/formulae           provided yabai + skhd, both dropped
+#   theboredteam/boring-notch \
+#   oven-sh/bun                > nothing in these Brewfiles comes from them
+#   bbc/audiowaveform         /
 
-tap "homebrew/services"
-
-# Nerd/other font casks. Deprecated upstream (fonts moved into homebrew/cask),
-# kept because the current machine still has it tapped and removing it is a
-# separate decision from this bootstrap.
-tap "homebrew/cask-fonts"
-
-tap "kamillobinski/thock"      # cask "thock"
-tap "muesli-hq/muesli"         # cask "muesli"
-tap "theboredteam/boring-notch"
-tap "oven-sh/bun"
-tap "asmvik/formulae"
-tap "bbc/audiowaveform"
-tap "xykong/tap"
+tap "kamillobinski/thock"   # cask "thock"          (Brewfile.apps)
+tap "muesli-hq/muesli"      # cask "muesli"         (Brewfile.apps)
+tap "xykong/tap"            # cask "flux-markdown"  (Brewfile.apps)

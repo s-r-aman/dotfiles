@@ -139,17 +139,40 @@ ok "brew on PATH for this session"
 # =========================================================================
 phase "Phase 3/7  Packages"
 
-# Taps first: several casks resolve only from third-party taps and brew
-# bundle hard-fails without them.
+# Packages rot upstream: taps get deprecated, casks get renamed or removed.
+# When that happens `brew bundle` exits non-zero, and under `set -e` that
+# would abort the whole run and leave the machine half-configured. Every
+# bundle call below is therefore allowed to fail; failures are collected and
+# reported at the end, and the exit code reflects them.
+FAILED_TIERS=()
+
+run_bundle() {
+  # Split across two `local` statements deliberately: in bash 3.2 a single
+  # `local a=$1 b=$a` declares both names before assigning, so `$a` is unset
+  # when `b` expands — fatal under `set -u`.
+  local tier="$1"
+  local file="$BREW_DIR/Brewfile.$tier"
+  if brew bundle --file="$file"; then
+    return 0
+  else
+    FAILED_TIERS+=("$tier")
+    warn "'$tier' had failures — continuing anyway."
+    warn "  retry with: brew bundle --file=brew/Brewfile.$tier"
+    return 1
+  fi
+}
+
+# Taps first: the casks in Brewfile.apps resolve only from third-party taps.
 info "Tapping repositories..."
-brew bundle --file="$BREW_DIR/Brewfile.taps"
-ok "taps ready"
+run_bundle taps && ok "taps ready"
 
 info "Installing core tier (this is the slow part)..."
-brew bundle --file="$BREW_DIR/Brewfile.core"
-ok "core installed"
+run_bundle core && ok "core installed"
 
-for tier in "${SELECTED_TIERS[@]}"; do
+# macOS ships bash 3.2, where expanding an EMPTY array under `set -u` is an
+# unbound-variable error. A default run selects no optional tiers, so this
+# loop must be guarded rather than expanded unconditionally.
+for tier in ${SELECTED_TIERS[@]+"${SELECTED_TIERS[@]}"}; do
   if [[ "$tier" == "mas" ]]; then
     # `mas install` fails on a machine not signed into the App Store, and the
     # error is opaque. Check first and degrade to a warning.
@@ -160,13 +183,7 @@ for tier in "${SELECTED_TIERS[@]}"; do
     fi
   fi
   info "Installing $tier tier..."
-  # A dead cask in one tier must not abort the whole bootstrap.
-  if brew bundle --file="$BREW_DIR/Brewfile.$tier"; then
-    ok "$tier installed"
-  else
-    warn "$tier tier had failures — continuing. Re-run:"
-    warn "  brew bundle --file=brew/Brewfile.$tier"
-  fi
+  run_bundle "$tier" && ok "$tier installed"
 done
 
 # =========================================================================
@@ -277,7 +294,12 @@ else
 fi
 
 # =========================================================================
-phase "Done"
+if [[ ${#FAILED_TIERS[@]} -gt 0 ]]; then
+  phase "Done — with failures"
+else
+  phase "Done"
+fi
+
 cat <<EOF
     Restart your terminal, or: exec zsh
 
@@ -289,3 +311,12 @@ cat <<EOF
 
     Verify with: $DOTFILES/scripts/healthcheck.sh
 EOF
+
+if [[ ${#FAILED_TIERS[@]} -gt 0 ]]; then
+  printf '\n'
+  warn "these tiers had failures: ${FAILED_TIERS[*]}"
+  warn "everything else installed. Scroll up for the specific packages,"
+  warn "or re-run a single tier with:"
+  warn "  brew bundle --file=brew/Brewfile.<tier>"
+  exit 1
+fi

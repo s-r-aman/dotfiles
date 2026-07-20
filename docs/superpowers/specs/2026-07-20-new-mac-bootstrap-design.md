@@ -105,10 +105,19 @@ brew/
 
 Cask total: 11 + 5 + 13 + 22 + 8 + 11 = **70**.
 
-**taps** — `asmvik/formulae bbc/audiowaveform homebrew/cask-fonts homebrew/services
-kamillobinski/thock muesli-hq/muesli oven-sh/bun theboredteam/boring-notch xykong/tap`.
-Load-bearing: without `kamillobinski/thock` and `muesli-hq/muesli`, those casks fail to resolve.
-Bundled before every other tier.
+**taps** — `kamillobinski/thock` (→ `thock`), `muesli-hq/muesli` (→ `muesli`),
+`xykong/tap` (→ `flux-markdown`). Bundled before every other tier.
+
+> **Corrected 2026-07-20 after a real failure on the target Mac.** This originally
+> mirrored all nine taps from the source machine. Six were wrong: `homebrew/services`
+> and `homebrew/cask-fonts` are deprecated and now empty, and *tapping a deprecated
+> repo is a hard error* that aborted `brew bundle` at phase 3. `asmvik/formulae`
+> supplied yabai/skhd (dropped); `theboredteam/boring-notch`, `oven-sh/bun` and
+> `bbc/audiowaveform` supply nothing these Brewfiles reference. Every font cask now
+> resolves from `homebrew/cask`, and `brew services` is built into brew.
+>
+> Lesson: mirroring a machine's tap list is not the same as validating it. Taps must
+> be derived from what the Brewfiles actually reference.
 
 **core** — usable machine: `zsh stow starship zoxide fzf eza bat fd jq neovim tmux gh thefuck
 trash mas lazygit yazi btop pinentry-mac`; casks `ghostty karabiner-elements raycast
@@ -160,6 +169,19 @@ starting it is a per-project choice, left manual.
 
 **Idempotency rule:** every phase checks before it acts. Re-running a completed bootstrap must
 be a no-op that exits 0.
+
+**Resilience rule:** package sources rot — taps get deprecated, casks get renamed or pulled.
+No single `brew bundle` failure may abort the run and leave the machine half-configured. Every
+bundle call is allowed to fail; failures are collected, reported by name at the end, and
+reflected in a non-zero exit.
+
+**bash 3.2 constraint:** `/usr/bin/env bash` on macOS resolves to bash 3.2.57, not 5.x. Two
+idioms that work in modern bash are fatal there under `set -u`, and both were present in the
+first implementation:
+- expanding an empty array — `"${ARR[@]}"` raises *unbound variable*; use
+  `${ARR[@]+"${ARR[@]}"}` or guard on `${#ARR[@]}`
+- `local a="$1" b="$a"` — `local` declares every name before assigning, so `$a` is unset while
+  `b` expands; split into separate `local` statements
 
 **Explicitly out of scope:** app preference plists (Raycast/Shottr/alt-tab). They carry
 machine-specific and licence state and are overwritten on app quit — unreliable to sync.
