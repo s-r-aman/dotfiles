@@ -2,3 +2,11 @@
 .DS_Store
 **/.DS_Store
 /zmk-config-totem
+
+# Karabiner rewrites these on every config change. The real config is
+# karabiner.json; these are machine-local history, not dotfiles.
+karabiner/.config/karabiner/automatic_backups/
+
+# Git identity — included by the tracked git/.gitconfig, never committed.
+# Written by lib/identity.sh.
+.gitconfig.local
