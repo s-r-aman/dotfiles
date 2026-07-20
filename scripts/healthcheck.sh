@@ -121,8 +121,8 @@ if [[ -r "$HOME/.config/ghostty/config" ]]; then
       pass "font installed: $want_font"
     else
       fail "font NOT installed: '$want_font' — ghostty falls back to a default."
-      fail "  MonoLisa is a paid font, not available via brew. Copy the .ttf"
-      fail "  from your other Mac into ~/Library/Fonts/."
+      fail "  install it with: brew bundle --file=brew/Brewfile.core"
+      fail "  (nerd-patched Monaspace is the cask font-monaspace-nerd-font)"
     fi
   fi
 else

@@ -46,7 +46,11 @@ cask "openin"              # cask only; the MAS build is a duplicate
 cask "bitwarden"
 
 # --- fonts ---------------------------------------------------------------
-cask "font-hack-nerd-font"          # terminal font
+# Ghostty's font. Nerd-patched, so it carries the glyphs starship and
+# `eza --icons` need. Replaces MonoLisa, which was a paid font that could not
+# be committed to a public repo and so never reached a new machine.
+cask "font-monaspace-nerd-font"
+cask "font-hack-nerd-font"          # fallback terminal font
 cask "font-symbols-only-nerd-font"
 cask "font-ibm-plex-mono"
 cask "font-karla"

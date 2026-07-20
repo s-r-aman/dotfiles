@@ -13,6 +13,10 @@ cask "chatgpt"
 cask "chatgpt-atlas"
 
 # --- coding agents / terminals -------------------------------------------
+# Was installed by hand on the source machine into ~/.local/share/claude, so
+# it never showed up in `brew list` and was missing from these Brewfiles.
+# The cask self-updates, so its version may lag a hand-installed copy briefly.
+cask "claude-code"
 cask "codex"
 cask "cmux"
 cask "conductor"
@@ -23,5 +27,9 @@ cask "granola"
 cask "fathom"
 
 # --- voice / misc --------------------------------------------------------
+# Also installed by hand on the source machine (dragged to /Applications), so
+# it was invisible to `brew list` and absent from these Brewfiles.
+# Needs Accessibility + Microphone permission before its hotkey works.
+cask "wispr-flow"
 cask "fluidvoice"
 cask "finetune"
