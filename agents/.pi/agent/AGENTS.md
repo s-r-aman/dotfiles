@@ -1,0 +1,3 @@
+- keep the output short and and concise, sacrfice grammar to keep it concise.
+- when writing commit messages, never include yourself as co author.
+- when making technical decisions, do not give much weight to development cost.

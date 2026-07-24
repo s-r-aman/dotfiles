@@ -69,10 +69,15 @@ docs/superpowers/specs/   design docs
 
 ### Stow packages
 
-`alacritty` `claude` `ghostty` `git` `karabiner` `nvim` `tmux` `zshrc`
+`agents` `alacritty` `claude` `ghostty` `git` `karabiner` `nvim` `tmux` `zshrc`
 
 Each mirrors its path relative to `$HOME`. `zshrc/.zshrc` links to
 `~/.zshrc`; `nvim/.config/nvim` links to `~/.config/nvim`.
+
+The `agents` package provides shared global instructions at
+`~/.pi/agent/AGENTS.md`. Codex (`~/.codex/AGENTS.md`), OpenCode
+(`~/.config/opencode/AGENTS.md`), and Claude Code (`~/.claude/CLAUDE.md`)
+symlink to that canonical file.
 
 Add a package:
 

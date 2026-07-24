@@ -85,6 +85,10 @@ check_link "$HOME/.tmux.conf"
 check_link "$HOME/.gitconfig"
 for d in karabiner nvim ghostty alacritty; do check_link "$HOME/.config/$d"; done
 check_link "$HOME/.claude/commands"
+check_link "$HOME/.pi/agent/AGENTS.md"
+check_link "$HOME/.codex/AGENTS.md"
+check_link "$HOME/.config/opencode/AGENTS.md"
+check_link "$HOME/.claude/CLAUDE.md"
 
 printf '\n%sGhostty%s\n' "$BOLD" "$RESET"
 

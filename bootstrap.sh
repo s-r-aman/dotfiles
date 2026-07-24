@@ -15,7 +15,7 @@ BREW_DIR="$DOTFILES/brew"
 
 # Stow packages. yabai/skhd were removed deliberately — window management
 # moved to Raycast + alt-tab.
-STOW_PACKAGES=(alacritty claude ghostty git karabiner nvim tmux zshrc)
+STOW_PACKAGES=(agents alacritty claude ghostty git karabiner nvim tmux zshrc)
 
 OPTIONAL_TIERS=(dev apps media ai mas)
 SELECTED_TIERS=()
